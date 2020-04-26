@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "kucharka",
+    "name": "Kuchařka",
+    "description": "Le Kuchařka",
     "slug": "kucharka",
     "platforms": ["android", "web"],
     "version": "1.0.0",

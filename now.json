@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/static/.*",
+      "headers": { "cache-control": "maxage=31536000" }
+    }
+  ]
+}
