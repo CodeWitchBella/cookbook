@@ -13,6 +13,7 @@
     "@now/node": "^1.5.1",
     "@react-spring/native": "^9.0.0-beta.33",
     "expo": "~37.0.3",
+    "luxon": "^1.23.0",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-kawaii": "^0.16.0",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",
+    "@types/luxon": "^1.22.0",
     "@types/react": "~16.9.23",
     "@types/react-kawaii": "^0.11.0",
     "@types/react-native": "~0.61.17",
