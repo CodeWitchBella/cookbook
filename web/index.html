@@ -97,26 +97,21 @@
       ;(async () => {})()
       window.supported = typeof fetch === 'function'
     </script>
+    <!-- prettier-ignore -->
     <script>
       if (window.supported) {
         document.querySelector('#not-supported').style.display = 'none'
         document.querySelector('#root').style.display = ''
-        ;[].forEach.apply(document.querySelectorAll('.not-supported'), [
-          function (v) {
-            v.parentNode.removeChild(v)
-          },
-        ])
+        ;[].forEach.call(document.querySelectorAll('.not-supported'), function (v) {
+          v.parentNode.removeChild(v)
+        })
       } else {
         document.getElementById('not-supported').style.display = 'block'
         setInterval(function () {
-          var unsupported = document.querySelectorAll(
-            'body > *:not(.not-supported)',
-          )
-          ;[].forEach.apply(unsupported, [
-            function (node) {
-              node.parentNode.removeChild(node)
-            },
-          ])
+          var unsupported = document.querySelectorAll('body > *:not(.not-supported)')
+          ;[].forEach.call(unsupported, function (node) {
+            node.parentNode.removeChild(node)
+          })
         }, 100)
       }
     </script>
