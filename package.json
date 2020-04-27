@@ -9,6 +9,8 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@google-cloud/firestore": "^3.7.5",
+    "@now/node": "^1.5.1",
     "@react-spring/native": "^9.0.0-beta.33",
     "expo": "~37.0.3",
     "react": "~16.9.0",
