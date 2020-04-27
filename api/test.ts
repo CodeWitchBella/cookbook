@@ -1,5 +1,5 @@
 import { NowRequest, NowResponse } from '@now/node'
-import { firestore } from './firestore'
+import { firestore } from './_firestore'
 
 export default (req: NowRequest, res: NowResponse) => {
   handle(req)
