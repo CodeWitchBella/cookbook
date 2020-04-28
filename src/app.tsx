@@ -1,13 +1,34 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { FloatingGhost } from 'floating-ghost'
+// @ts-ignore
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Login from 'login'
+import { BackButton } from 'back-button'
+import { Homepage } from 'homepage'
 
 export function App() {
   return (
-    <View style={styles.container}>
-      <FloatingGhost />
-      <Text style={{ marginTop: 20 }}>Nothing to see here, yet!</Text>
-    </View>
+    <BrowserRouter>
+      <View style={{ flexDirection: 'column-reverse', flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="*"
+            element={
+              <View style={styles.container}>
+                <FloatingGhost mood="sad" />
+                <Text style={{ marginTop: 30, fontSize: 20 }}>
+                  404 Not found
+                </Text>
+              </View>
+            }
+          />
+        </Routes>
+        <BackButton />
+      </View>
+    </BrowserRouter>
   )
 }
 
