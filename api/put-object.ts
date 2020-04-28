@@ -1,14 +1,11 @@
-import { promiseRequest } from './_promise-request'
+import { promiseRequest, checkCSRF } from './_promise-request'
 
-const { VERCEL_URL } = process.env
 export default promiseRequest(async (req, res) => {
-  if (req.method !== 'POST') {
-    res.status(405)
-    return 'Method not allowed'
-  }
-  if (req.headers.origin !== VERCEL_URL) {
-    res.status(403)
-    return 'Forbidden'
+  checkCSRF(req)
+  const { id, type, data } = req.body
+  if (!id || !type || !data) {
+    res.status(400)
+    return 'Missing body field'
   }
   return 'todo'
 })
