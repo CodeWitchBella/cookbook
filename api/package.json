@@ -6,6 +6,8 @@
     "luxon": "^1.23.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/luxon": "^1.22.0",
     "typescript": "~3.8.3"
   }
 }
