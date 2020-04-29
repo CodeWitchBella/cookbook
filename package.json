@@ -9,10 +9,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^3.7.5",
-    "@now/node": "^1.5.1",
     "@react-spring/native": "^9.0.0-beta.33",
-    "bcryptjs": "^2.4.3",
     "expo": "~37.0.3",
     "expo-constants": "^9.0.0",
     "history": "^5.0.0-beta.8",
