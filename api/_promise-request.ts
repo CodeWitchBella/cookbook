@@ -45,6 +45,12 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
   ) {
     throw createSpecialError('Forbidden', 403)
   }
+  if (
+    method === 'POST' &&
+    getFirst(req.headers['content-range']) !== 'application/json'
+  ) {
+    throw createSpecialError('Bad content-type', 403)
+  }
 }
 
 export async function loggedInUserId(req: NowRequest): Promise<string | null> {
