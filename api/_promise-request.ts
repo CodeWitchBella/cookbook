@@ -38,7 +38,11 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
     throw createSpecialError('Method not allowed', 405)
   }
   const url = req.headers['x-now-deployment-url']
-  if (![url, 'kucharka.skorepova.info'].includes(req.headers.origin)) {
+  if (
+    ![url, 'kucharka.skorepova.info']
+      .map((host) => 'https://' + host)
+      .includes(getFirst(req.headers.origin) || '')
+  ) {
     throw createSpecialError('Forbidden', 403)
   }
 }
@@ -52,4 +56,9 @@ export async function loggedInUserId(req: NowRequest): Promise<string | null> {
     return null
   }
   return session.get('user') || null
+}
+
+export function getFirst<T>(o: undefined | T | T[]): T | undefined {
+  if (Array.isArray(o)) return o[0]
+  return o
 }

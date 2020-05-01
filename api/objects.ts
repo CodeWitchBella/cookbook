@@ -1,7 +1,7 @@
 import { NowRequest, NowResponse } from '@now/node'
 import { firestore } from './_firestore'
 import { DateTime } from 'luxon'
-import { promiseRequest } from './_promise-request'
+import { promiseRequest, getFirst } from './_promise-request'
 
 export default promiseRequest(async (req: NowRequest) => {
   const objects = await getObjects(getFirst(req.query.modifiedAfter))
@@ -16,9 +16,4 @@ function getObjects(modifiedAfter?: string) {
       .get()
   }
   return objects.get()
-}
-
-function getFirst<T>(o: undefined | T | T[]): T | undefined {
-  if (Array.isArray(o)) return o[0]
-  return o
 }
