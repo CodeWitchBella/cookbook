@@ -6,14 +6,16 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from 'login'
 import { BackButton } from 'back-button'
 import { Homepage } from 'homepage'
+import { useUserStore } from 'user'
 
 export function App() {
+  const userStore = useUserStore()
   return (
     <BrowserRouter>
       <View style={{ flexDirection: 'column-reverse', flex: 1 }}>
         <Routes>
           <Route path="/" element={<Homepage />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login userStore={userStore} />} />
           <Route
             path="*"
             element={
