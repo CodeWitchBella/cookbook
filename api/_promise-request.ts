@@ -33,7 +33,6 @@ function createSpecialError(body: string, status?: number) {
   return { [specialError]: body, status: 405 }
 }
 
-const { VERCEL_URL } = process.env
 export function checkCSRF(req: NowRequest, method = 'POST') {
   if (req.method !== method) {
     throw createSpecialError('Method not allowed', 405)
