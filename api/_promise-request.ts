@@ -38,12 +38,13 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
     throw createSpecialError('Method not allowed', 405)
   }
   const url = req.headers['x-now-deployment-url']
+  const origin = getFirst(req.headers.origin) || ''
   if (
     ![url, 'kucharka.skorepova.info']
       .map((host) => 'https://' + host)
-      .includes(getFirst(req.headers.origin) || '')
+      .includes(origin)
   ) {
-    throw createSpecialError('Forbidden', 403)
+    throw createSpecialError('Forbidden, wrong origin. Got: ' + origin, 403)
   }
   if (
     method === 'POST' &&
