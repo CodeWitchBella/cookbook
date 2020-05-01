@@ -43,6 +43,6 @@ function ApiError(message: string) {
   return error
 }
 
-export function isApiError<T>(error: T): T is Error {
+export function isApiError(error: any): error is Error {
   return !!(typeof error === 'object' && error && (error as any)[apiError])
 }

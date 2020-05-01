@@ -14,6 +14,7 @@ now dev
 
 ```
 yarn web
+node proxy.js
 ```
 
 ## deploying
