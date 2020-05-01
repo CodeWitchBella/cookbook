@@ -47,7 +47,7 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
   }
   if (
     method === 'POST' &&
-    getFirst(req.headers['content-range']) !== 'application/json'
+    getFirst(req.headers['content-type']) !== 'application/json'
   ) {
     throw createSpecialError('Bad content-type', 403)
   }
