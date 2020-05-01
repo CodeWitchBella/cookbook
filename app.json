@@ -18,7 +18,7 @@
     "assetBundlePatterns": ["**/*"],
     "web": {
       "config": {
-        "fireboase": {
+        "firebase": {
           "apiKey": "AIzaSyD5Gba9dbIvVP231RBvMpZIfUSiFiIcw_Q",
           "authDomain": "cookbook-56fab.firebaseapp.com",
           "databaseURL": "https://cookbook-56fab.firebaseio.com",

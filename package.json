@@ -13,7 +13,6 @@
     "expo": "~37.0.3",
     "expo-constants": "^9.0.0",
     "history": "^5.0.0-beta.8",
-    "idb": "^5.0.2",
     "luxon": "^1.23.0",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
@@ -34,6 +33,7 @@
     "babel-plugin-module-resolver": "^4.0.0",
     "babel-preset-expo": "~8.1.0",
     "expo-cli": "^3.19.2",
+    "http-proxy": "^1.18.0",
     "typescript": "~3.8.3"
   },
   "private": true
