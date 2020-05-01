@@ -40,6 +40,7 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
   const url = req.headers['x-now-deployment-url']
   const origin = getFirst(req.headers.origin) || ''
   if (
+    method !== 'GET' &&
     ![url, 'kucharka.skorepova.info']
       .map((host) => 'https://' + host)
       .includes(origin)
@@ -47,7 +48,7 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
     throw createSpecialError('Forbidden, wrong origin. Got: ' + origin, 403)
   }
   if (
-    method === 'POST' &&
+    method !== 'GET' &&
     getFirst(req.headers['content-type']) !== 'application/json'
   ) {
     throw createSpecialError('Bad content-type', 403)
