@@ -1,9 +1,7 @@
-import Constants from 'expo-constants'
-
 const localhost = window.location.host.split(':')[0] === 'localhost'
 export const apiHost = localhost
   ? 'https://localhost:8000'
-  : 'kucharka.skorepova.info'
+  : 'https://kucharka.skorepova.info'
 const apiError = Symbol()
 
 export function apiFetch<T extends {}>(
