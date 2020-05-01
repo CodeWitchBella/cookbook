@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { apiFetch, isApiError } from 'api'
+import Constants from 'expo-constants'
+import { Platform } from 'react-native'
 
 export function useUserStore() {
   const [state, setState] = useState({
@@ -50,7 +52,7 @@ export function useUserStore() {
     (options: { email: string; password: string }): Promise<string | false> => {
       return apiFetch<{}>('login', {
         method: 'POST',
-        body: options,
+        body: { ...options, extra: getDeviceInfo() },
       }).then(
         () => {
           setReloadCounter((v) => v + 1) // reload user
@@ -68,3 +70,26 @@ export function useUserStore() {
   return useMemo(() => ({ state, login }), [state, login])
 }
 export type UserStore = ReturnType<typeof useUserStore>
+
+export function getDeviceInfo() {
+  const ret: { [key: string]: string | number | null | undefined | boolean } = {
+    deviceYearClass: Constants?.deviceYearClass,
+    deviceName: Constants?.deviceName,
+
+    installationId: Constants?.installationId,
+    appOwnership: Constants?.appOwnership,
+    expoVersion: Constants?.expoVersion,
+    osName: Platform?.OS,
+    osVersion: Platform?.Version,
+    simulator: !Constants?.isDevice,
+  }
+
+  ret.expoReleaseChannel = Constants?.manifest?.releaseChannel
+  ret.expoAppVersion = Constants?.manifest?.version
+  ret.expoAppPublishedTime = Constants?.manifest?.publishedTime
+  ret.expoSdkVersion = Constants?.sdkVersion
+  ret.model = Constants?.platform?.ios?.model || 'n/a'
+  if (Constants.platform?.web) ret.webUa = Constants.platform?.web.ua
+
+  return ret
+}

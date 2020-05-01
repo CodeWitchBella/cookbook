@@ -7,7 +7,7 @@ import * as bcrypt from 'bcryptjs'
 export default promiseRequest(async (req, res) => {
   checkCSRF(req)
 
-  const { email, password } = req.body
+  const { email, password, extra } = req.body
   if (!email || !password) {
     res.status(400)
     return 'Missing body field'
@@ -34,6 +34,7 @@ export default promiseRequest(async (req, res) => {
   const session = await firestore.collection('session').add({
     user: user.id,
     expires: DateTime.utc().plus(duration).toISO(),
+    extra,
   })
   setSessionCookie(res, session.id, duration)
 

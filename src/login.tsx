@@ -160,26 +160,3 @@ const Input = forwardRef<TextInput, TextInputProps>((props, ref) => {
     />
   )
 })
-
-export function getDeviceInfo() {
-  const ret: { [key: string]: string | number | null | undefined | boolean } = {
-    deviceYearClass: Constants?.deviceYearClass,
-    deviceName: Constants?.deviceName,
-
-    installationId: Constants?.installationId,
-    appOwnership: Constants?.appOwnership,
-    expoVersion: Constants?.expoVersion,
-    osName: Platform?.OS,
-    osVersion: Platform?.Version,
-    simulator: !Constants?.isDevice,
-  }
-
-  ret.expoReleaseChannel = Constants?.manifest?.releaseChannel
-  ret.expoAppVersion = Constants?.manifest?.version
-  ret.expoAppPublishedTime = Constants?.manifest?.publishedTime
-  ret.expoSdkVersion = Constants?.sdkVersion
-  ret.model = Constants?.platform?.ios?.model || 'n/a'
-  if (Constants.platform?.web) ret.webUa = Constants.platform?.web.ua
-
-  return ret
-}
