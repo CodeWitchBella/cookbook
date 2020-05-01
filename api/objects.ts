@@ -1,9 +1,8 @@
-import { NowRequest, NowResponse } from '@now/node'
 import { firestore } from './_firestore'
 import { DateTime } from 'luxon'
 import { promiseRequest, getFirst } from './_promise-request'
 
-export default promiseRequest(async (req: NowRequest) => {
+export default promiseRequest(async (req) => {
   const objects = await getObjects(getFirst(req.query.modifiedAfter))
   return objects.docs.map((doc) => doc.data())
 })
