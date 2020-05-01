@@ -1,7 +1,12 @@
 module.exports = function (api) {
   api.cache(true)
+  console.log(process.argv)
   return {
-    presets: ['babel-preset-expo'],
+    presets: [
+      'babel-preset-expo',
+      // TODO: once I upgrade react
+      // ['@babel/preset-react', { runtime: 'automatic' }],
+    ],
 
     plugins: [
       [
