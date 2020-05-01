@@ -37,7 +37,7 @@ export default promiseRequest(async (req, res) => {
   })
   setSessionCookie(res, session.id, duration)
 
-  return 'Success'
+  return { success: true }
 })
 
 function setSessionCookie(res: NowResponse, value: string, duration: Duration) {
