@@ -39,7 +39,10 @@ export function checkCSRF(req: NowRequest, method = 'POST') {
     throw createSpecialError('Method not allowed', 405)
   }
   if (req.headers.origin !== 'https://' + VERCEL_URL) {
-    throw createSpecialError('Forbidden ' + req.headers.origin, 403)
+    throw createSpecialError(
+      'Forbidden ' + req.headers.origin + ' ' + VERCEL_URL,
+      403,
+    )
   }
 }
 
