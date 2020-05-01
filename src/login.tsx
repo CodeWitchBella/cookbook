@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef } from 'react'
+import React, { useState, useRef, forwardRef, useEffect } from 'react'
 import {
   View,
   TextInput,
@@ -9,6 +9,8 @@ import {
 } from 'react-native'
 import Constants from 'expo-constants'
 import type { UserStore } from './user'
+// @ts-ignore
+import { useNavigate } from 'react-router-dom'
 
 export default function Login({ userStore }: { userStore: UserStore }) {
   const [email, setEmail] = useState('')
@@ -18,6 +20,7 @@ export default function Login({ userStore }: { userStore: UserStore }) {
   const [submitting, setSubmitting] = useState(false)
 
   const submittingRef = useRef(false)
+  useRedirectOnLogin(userStore)
 
   if (userStore.state.loading) {
     return <View />
@@ -26,7 +29,14 @@ export default function Login({ userStore }: { userStore: UserStore }) {
   if (userStore.state.user) {
     return (
       <Base>
-        <Text>Už jsi přihlášen</Text>
+        <Space size={10} />
+        <Text>
+          Hotovo! {/*eslint-disable-next-line jsx-a11y/accessible-emoji*/}
+          <Text accessibilityRole="image" accessibilityLabel="konfetovač">
+            🎉
+          </Text>
+          {'\n'}Tvůj email: {userStore.state.user.email}
+        </Text>
       </Base>
     )
   }
@@ -93,6 +103,22 @@ export default function Login({ userStore }: { userStore: UserStore }) {
   )
 }
 
+function useRedirectOnLogin(userStore: UserStore) {
+  const emailStatus = userStore.state.loading
+    ? 'loading'
+    : userStore.state.user?.email
+  const prevEmailStatus = useRef(emailStatus)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!prevEmailStatus.current && emailStatus) {
+      navigate('/')
+    }
+
+    prevEmailStatus.current = emailStatus
+  }, [emailStatus, navigate])
+}
+
 function Base({ children }: React.PropsWithChildren<{}>) {
   return (
     <View
@@ -110,8 +136,11 @@ function Base({ children }: React.PropsWithChildren<{}>) {
   )
 }
 
-function Space({ children, size }: React.PropsWithChildren<{ size: number }>) {
-  return <View style={{ height: size ?? 5 }}>{children}</View>
+function Space({
+  children,
+  size = 5,
+}: React.PropsWithChildren<{ size?: number }>) {
+  return <View style={{ height: size }}>{children}</View>
 }
 
 const Input = forwardRef<TextInput, TextInputProps>((props, ref) => {
