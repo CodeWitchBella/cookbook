@@ -20,7 +20,6 @@ export default function Login({ userStore }: { userStore: UserStore }) {
   const [submitting, setSubmitting] = useState(false)
 
   const submittingRef = useRef(false)
-  useRedirectOnLogin(userStore)
 
   if (userStore.state.loading) {
     return <View />
@@ -101,22 +100,6 @@ export default function Login({ userStore }: { userStore: UserStore }) {
       </TouchableOpacity>
     </Base>
   )
-}
-
-function useRedirectOnLogin(userStore: UserStore) {
-  const emailStatus = userStore.state.loading
-    ? 'loading'
-    : userStore.state.user?.email
-  const prevEmailStatus = useRef(emailStatus)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (!prevEmailStatus.current && emailStatus) {
-      navigate('/')
-    }
-
-    prevEmailStatus.current = emailStatus
-  }, [emailStatus, navigate])
 }
 
 function Base({ children }: React.PropsWithChildren<{}>) {

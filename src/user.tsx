@@ -1,70 +1,83 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { apiFetch, isApiError } from 'api'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { apiFetch, isApiError, apiHost } from 'api'
 import Constants from 'expo-constants'
 import { Platform } from 'react-native'
+import { timeout } from 'helpers'
+import { Duration } from 'luxon'
+
+function load(
+  instance: ReturnType<typeof useUserStoreInstance>,
+  setState: (state: UserStore['state']) => void,
+) {
+  const boundLoad = () => {
+    load(instance, setState)
+  }
+  return apiFetch('me', {
+    method: 'GET',
+  })
+    .then((res) => {
+      if (instance.unmounted) return
+      instance.exponentialBackof = 100
+      if (res.code === 'NOT_LOGGED_IN') {
+        setState({ loading: false, user: null })
+      } else {
+        setState({ loading: false, user: { id: res.id, email: res.email } })
+      }
+      instance.clearTimeout?.()
+      // refetch login status every day if app is not reset
+      instance.clearTimeout = timeout({ day: 1 }, boundLoad)
+    })
+    .catch((e) => {
+      console.warn(e)
+      instance.exponentialBackof *= 2
+      if (
+        instance.exponentialBackof >
+        Duration.fromObject({ minute: 2 }).as('millisecond')
+      )
+        instance.exponentialBackof = 30000
+      instance.clearTimeout?.()
+      instance.clearTimeout = timeout(instance.exponentialBackof, boundLoad)
+    })
+}
+function useUserStoreInstance() {
+  return useRef({
+    clearTimeout: null as (() => void) | null,
+    exponentialBackof: 100,
+    unmounted: false,
+  }).current
+}
 
 export function useUserStore() {
   const [state, setState] = useState({
     loading: true,
     user: null as { id: string; email: string } | null,
   })
-  const [reloadCounter, setReloadCounter] = useState(0)
+  const instance = useUserStoreInstance()
 
   useEffect(() => {
-    function noop(_: number) {}
-    noop(reloadCounter) // use it so that I don't accidentaly remove it from deps
-
-    let cancelled = false
-    let timeout: ReturnType<typeof setTimeout> | null = null
-    let exponentialBackof = 100
-    const load = () => {
-      timeout = null
-      apiFetch('me?_now_no_cache=1', {
-        method: 'GET',
-      })
-        .then((res) => {
-          if (cancelled) return
-          exponentialBackof = 100
-          if (res.code === 'NOT_LOGGED_IN') {
-            setState({ loading: false, user: null })
-          } else {
-            setState({ loading: false, user: { id: res.id, email: res.email } })
-          }
-          if (timeout) clearTimeout(timeout)
-          // refetch login status every day if app is not reset
-          timeout = setTimeout(load, 1000 * 3600 * 24)
-        })
-        .catch((e) => {
-          console.warn(e)
-          exponentialBackof *= 2
-          if (exponentialBackof > 120000) exponentialBackof = 30000
-          if (timeout) clearTimeout(timeout)
-          timeout = setTimeout(load, exponentialBackof)
-        })
-    }
-    load()
+    load(instance, setState)
     return () => {
-      cancelled = true
-      if (timeout) clearTimeout(timeout)
+      instance.unmounted = true
+      instance.clearTimeout?.()
     }
-  }, [reloadCounter])
+  }, [instance])
+
   const login = useCallback(
     (options: { email: string; password: string }): Promise<string | false> => {
       return apiFetch<{}>('login', {
         method: 'POST',
         body: { ...options, extra: getDeviceInfo() },
-      }).then(
-        () => {
-          setReloadCounter((v) => v + 1) // reload user
-          return false
-        },
-        (reason) => {
-          if (isApiError(reason)) return reason.message
-          throw reason
-        },
-      )
+      })
+        .then(() => load(instance, setState))
+        .then(
+          () => false,
+          (reason) => {
+            if (isApiError(reason)) return reason.message
+            throw reason
+          },
+        )
     },
-    [],
+    [instance],
   )
 
   return useMemo(() => ({ state, login }), [state, login])
@@ -82,6 +95,7 @@ export function getDeviceInfo() {
     osName: Platform?.OS,
     osVersion: Platform?.Version,
     simulator: !Constants?.isDevice,
+    apiHost,
   }
 
   ret.expoReleaseChannel = Constants?.manifest?.releaseChannel
@@ -89,6 +103,9 @@ export function getDeviceInfo() {
   ret.expoAppPublishedTime = Constants?.manifest?.publishedTime
   ret.expoSdkVersion = Constants?.sdkVersion
   ret.model = Constants?.platform?.ios?.model || 'n/a'
+  if (typeof window !== 'undefined' && window?.location)
+    ret.webOrigin = window.location.protocol + '//' + window.location.host
+
   if (Constants.platform?.web) ret.webUa = Constants.platform?.web.ua
 
   return ret
