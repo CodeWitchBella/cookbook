@@ -9,7 +9,10 @@ export function promiseRequest(
 ) {
   return (req: NowRequest, res: NowResponse) => {
     const deployment = getFirst(req.headers['x-now-deployment-url'])
-    if (deployment) res.setHeader('x-deployment', deployment)
+    if (deployment) {
+      res.setHeader('x-deployment', deployment)
+      res.setHeader('access-control-expose-headers', 'x-deployment')
+    }
     handler(req, res)
       .then((json) => {
         respond(json, res)
