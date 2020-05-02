@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { apiFetch, isApiError, apiHost } from 'api'
 import Constants from 'expo-constants'
-import { Platform } from 'react-native'
+import { Platform, AsyncStorage } from 'react-native'
 import { timeout } from 'helpers'
 import { Duration } from 'luxon'
+import { asyncStorageKeys } from 'async-storage'
 
 function load(
   instance: ReturnType<typeof useUserStoreInstance>,
@@ -12,6 +13,7 @@ function load(
   const boundLoad = () => {
     load(instance, setState)
   }
+
   return apiFetch('me', {
     method: 'GET',
   })
@@ -53,6 +55,7 @@ export function useUserStore() {
     user: null as { id: string; email: string } | null,
   })
   const instance = useUserStoreInstance()
+  const fromCache = useUserFromAsyncStorage(state)
 
   useEffect(() => {
     load(instance, setState)
@@ -80,7 +83,15 @@ export function useUserStore() {
     [instance],
   )
 
-  return useMemo(() => ({ state, login }), [state, login])
+  const resState = !state.loading
+    ? state
+    : !fromCache.loading
+    ? fromCache
+    : null
+  return useMemo(
+    () => ({ state: resState ?? { loading: true, user: null }, login }),
+    [resState, login],
+  )
 }
 export type UserStore = ReturnType<typeof useUserStore>
 
@@ -109,4 +120,32 @@ export function getDeviceInfo() {
   if (Constants.platform?.web) ret.webUa = Constants.platform?.web.ua
 
   return ret
+}
+
+function useUserFromAsyncStorage(remoteUser: UserStore['state']) {
+  const [state, setState] = useState({
+    loading: true,
+    user: null as { id: string; email: string } | null,
+  })
+  useEffect(() => {
+    AsyncStorage.getItem(asyncStorageKeys.user)
+      .then((v) => {
+        if (!v) return v
+        return JSON.parse(v)
+      })
+      .then((user) => {
+        setState({ loading: false, user })
+      })
+      .catch((e) => {
+        console.warn(e)
+      })
+  }, [])
+  useEffect(() => {
+    if (!remoteUser.loading)
+      AsyncStorage.setItem(
+        asyncStorageKeys.user,
+        JSON.stringify(remoteUser.user),
+      )
+  }, [remoteUser])
+  return state
 }
