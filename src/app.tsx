@@ -7,11 +7,13 @@ import Login from 'login'
 import { BackButton } from 'back-button'
 import { Homepage } from 'homepage'
 import { useUserStore } from 'user'
+import { UpdateOnNavigation } from 'update-on-navigation'
 
 export function App() {
   const userStore = useUserStore()
   return (
     <BrowserRouter>
+      <UpdateOnNavigation />
       <View style={{ flexDirection: 'column-reverse', flex: 1 }}>
         <Routes>
           <Route path="/" element={<Homepage />} />

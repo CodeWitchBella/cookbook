@@ -1,3 +1,6 @@
+import { AsyncStorage } from 'react-native'
+import { asyncStorageKeys } from 'async-storage'
+
 const localhost = window.location.host.split(':')[0] === 'localhost'
 export const apiHost = localhost
   ? 'https://localhost:8000'
@@ -22,6 +25,7 @@ export function apiFetch<T extends {}>(
     },
   })
     .then((res) => {
+      onDeployment(res.headers.get('x-deployment') ?? '')
       if (res.status === 304) {
         return res.text().then((v) => (v.startsWith('{') ? JSON.parse(v) : v))
       }
@@ -31,6 +35,30 @@ export function apiFetch<T extends {}>(
     .then((res) => {
       if (typeof res === 'string') throw ApiError(res)
       return res
+    })
+}
+
+const deploymentChangeListeners = new Set<() => void>()
+export function onDeploymentChange(listener: () => void) {
+  const newListener = () => listener()
+  deploymentChangeListeners.add(newListener)
+  return () => {
+    deploymentChangeListeners.delete(newListener)
+  }
+}
+
+let lastDeployment = AsyncStorage.getItem(asyncStorageKeys.lastDeployment)
+function onDeployment(dep: string) {
+  if (!dep) return
+  lastDeployment
+    .then((last) => {
+      if (last !== dep) {
+        deploymentChangeListeners.forEach((list) => list())
+      }
+      lastDeployment = Promise.resolve(dep)
+    })
+    .catch((e) => {
+      console.warn(e)
     })
 }
 
