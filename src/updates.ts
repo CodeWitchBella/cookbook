@@ -86,7 +86,7 @@ onDeploymentChange(checkUpdate)
 
 export function useUpdateStatus() {
   const [status, setStatus] = useState(updateStatus)
-  useEffect(() => eventTarget.listen(setStatus), [])
+  useEffect(() => eventTarget.listen((next) => setStatus(next)), [])
   return status
 }
 
