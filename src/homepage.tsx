@@ -14,7 +14,7 @@ export function Homepage() {
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
         <FloatingGhost />
-        <Text style={{ marginTop: 20 }}>Nothing to see here, yet!</Text>
+        <Text style={{ marginTop: 20 }}>Zatím zde nic není</Text>
         <LinkButton to="/login">Přihlásit se</LinkButton>
       </View>
       <Text style={{ textAlign: 'right', padding: 10 }}>
