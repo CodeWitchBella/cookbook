@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { FloatingGhost } from 'floating-ghost'
 import { LinkButton } from './button'
@@ -18,16 +18,30 @@ export function Homepage() {
         <LinkButton to="/login">Přihlásit se</LinkButton>
       </View>
       <Text style={{ textAlign: 'right', padding: 10 }}>
-        Verze: {formatBuildTime(buildData.BUILD_TIME)}
+        Verze: <BuildTime time={buildData.BUILD_TIME} />
       </Text>
     </View>
   )
 }
 
-function formatBuildTime(date: string) {
-  const dt = DateTime.fromISO(date)
-  if (!dt.isValid) return date
-  return dt.toFormat('d. M. yyyy hh:mm:ss')
+function BuildTime({ time }: { time: DateTime }) {
+  if (!time.isValid) return <Now />
+  return <>{format(time)}</>
+}
+
+function Now() {
+  const [now, setNow] = useState(DateTime.utc())
+  useEffect(() => {
+    const int = setInterval(() => {
+      setNow(DateTime.utc())
+    }, 1000)
+    return () => clearInterval(int)
+  }, [])
+  return <>{format(now)}</>
+}
+
+function format(time: DateTime) {
+  return time.toFormat('d. M. yyyy HH:mm:ss')
 }
 
 const styles = StyleSheet.create({

@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 export const buildData = {
-  BUILD_TIME: '$BUILD_TIME',
+  BUILD_TIME: DateTime.fromISO('$BUILD_TIME'),
 }
