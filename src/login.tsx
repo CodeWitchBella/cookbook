@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useEffect } from 'react'
+import React, { useState, useRef, forwardRef } from 'react'
 import {
   View,
   TextInput,
@@ -7,10 +7,7 @@ import {
   TextInputProps,
   Platform,
 } from 'react-native'
-import Constants from 'expo-constants'
 import type { UserStore } from './user'
-// @ts-ignore
-import { useNavigate } from 'react-router-dom'
 
 export default function Login({ userStore }: { userStore: UserStore }) {
   const [email, setEmail] = useState('')

@@ -1,5 +1,5 @@
 import { promiseRequest, checkCSRF } from './_promise-request'
-import { NowResponse } from '@now/node'
+import type { NowResponse } from '@now/node'
 import { Duration, DateTime } from 'luxon'
 import { firestore } from './_firestore'
 import * as bcrypt from 'bcryptjs'
