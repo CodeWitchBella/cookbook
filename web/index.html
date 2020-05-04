@@ -95,7 +95,8 @@
 
     <script>
       ;(async () => {})()
-      window.supported = typeof fetch === 'function'
+      window.supported =
+        typeof fetch === 'function' && !!navigator.serviceWorker
     </script>
     <!-- prettier-ignore -->
     <script>

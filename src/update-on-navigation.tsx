@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
-import * as Updates from 'expo-updates'
-import { onDeploymentChange } from 'api'
+import { useEffect, useRef } from 'react'
 // @ts-ignore
 import { useLocation } from 'react-router-dom'
+import { Platform } from 'react-native'
+import { useUpdateStatus, reloadToUpdate } from 'updates'
+
+if (Platform.OS === 'web') {
+  navigator.serviceWorker.addEventListener('message', () => {})
+}
 
 export function UpdateOnNavigation() {
   const status = useUpdateStatus()
@@ -12,59 +16,12 @@ export function UpdateOnNavigation() {
   const location = useLocation()
   const lastLocation = useRef(location)
   useEffect(() => {
-    if (
-      lastLocation.current.pathname !== location.pathname &&
-      status === 'downloaded'
-    ) {
-      Updates.reloadAsync()
+    const pathnamechanged = lastLocation.current.pathname !== location.pathname
+    if (pathnamechanged && status === 'downloaded') {
+      console.log('reloading to update')
+      reloadToUpdate()
     }
     lastLocation.current = location
   }, [location, status])
   return null
-}
-
-function useUpdateStatus() {
-  const [status, setStatus] = useState<
-    'loading' | 'downloading' | 'downloaded' | 'updated'
-  >('loading')
-
-  useEffect(() => {
-    let ended = false
-    const subscription = Updates.addListener((event) => {
-      if (event.type === 'noUpdateAvailable') {
-        setStatus('updated')
-      } else if (event.type === 'updateAvailable') {
-        setStatus('downloading')
-        Updates.fetchUpdateAsync()
-          .then(() => {
-            if (ended) return
-            setStatus('downloaded')
-          })
-          .catch((e) => {
-            console.warn(e)
-          })
-      }
-    })
-    const disposeDepChange = onDeploymentChange(() => {
-      Updates.checkForUpdateAsync().then(({ isAvailable }) => {
-        if (isAvailable) {
-          setStatus('downloading')
-          return Updates.fetchUpdateAsync()
-            .then(() => {
-              if (ended) return
-              setStatus('downloaded')
-            })
-            .catch((e) => {
-              console.warn(e)
-            })
-        }
-      })
-    })
-    return () => {
-      ended = true
-      subscription.remove()
-      disposeDepChange()
-    }
-  }, [])
-  return status
 }

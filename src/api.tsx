@@ -1,5 +1,6 @@
 import { AsyncStorage } from 'react-native'
 import { asyncStorageKeys } from 'async-storage'
+import { MiniEventTarget } from 'mini-event-target'
 
 const localhost = window.location.host.split(':')[0] === 'localhost'
 export const apiHost = localhost
@@ -38,14 +39,8 @@ export function apiFetch<T extends {}>(
     })
 }
 
-const deploymentChangeListeners = new Set<() => void>()
-export function onDeploymentChange(listener: () => void) {
-  const newListener = () => listener()
-  deploymentChangeListeners.add(newListener)
-  return () => {
-    deploymentChangeListeners.delete(newListener)
-  }
-}
+const deploymentChangeListeners = new MiniEventTarget<string>()
+export const onDeploymentChange = deploymentChangeListeners.listen
 
 let lastDeployment = AsyncStorage.getItem(asyncStorageKeys.lastDeployment)
 function onDeployment(dep: string) {
@@ -53,7 +48,7 @@ function onDeployment(dep: string) {
   lastDeployment
     .then((last) => {
       if (last !== dep) {
-        deploymentChangeListeners.forEach((list) => list())
+        deploymentChangeListeners.emit(dep)
       }
       lastDeployment = Promise.resolve(dep)
     })
