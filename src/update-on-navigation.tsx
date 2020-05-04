@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 // @ts-ignore
 import { useLocation } from 'react-router-dom'
 import { Platform } from 'react-native'
-import { useUpdateStatus, reloadToUpdate } from 'updates'
+import { useUpdateStatus, reloadToUpdate, checkUpdate } from 'updates'
 
 if (Platform.OS === 'web') {
   navigator.serviceWorker.addEventListener('message', () => {})
@@ -17,6 +17,9 @@ export function UpdateOnNavigation() {
   const lastLocation = useRef(location)
   useEffect(() => {
     const pathnamechanged = lastLocation.current.pathname !== location.pathname
+    if (pathnamechanged && status === 'updated') {
+      checkUpdate()
+    }
     if (pathnamechanged && status === 'downloaded') {
       console.log('reloading to update')
       reloadToUpdate()

@@ -4,18 +4,24 @@ import { useState, useEffect } from 'react'
 import { onDeploymentChange } from 'api'
 import * as Updates from 'expo-updates'
 
-type UpdateStatus = 'loading' | 'downloading' | 'downloaded' | 'updated'
+type UpdateStatus =
+  | 'loading'
+  | 'downloading'
+  | 'downloaded'
+  | 'updated'
+  | 'failed'
 
-let swUpdateStatus: UpdateStatus = 'loading'
-const swEventTarget = new MiniEventTarget<UpdateStatus>()
+let updateStatus: UpdateStatus = 'loading'
+const eventTarget = new MiniEventTarget<UpdateStatus>()
+let swReg: ServiceWorkerRegistration | null = null
+function swChangeStatus(status: UpdateStatus) {
+  updateStatus = status
+  eventTarget.emit(status)
+}
 
 if (Platform.OS === 'web' && navigator.serviceWorker) {
-  const swChangeStatus = (status: UpdateStatus) => {
-    swUpdateStatus = status
-    swEventTarget.emit(status)
-  }
-
   navigator.serviceWorker.ready.then((reg) => {
+    swReg = reg
     if (reg.installing) swChangeStatus('downloading')
     else if (reg.waiting) swChangeStatus('downloaded')
     else swChangeStatus('updated')
@@ -55,65 +61,66 @@ if (Platform.OS === 'web' && navigator.serviceWorker) {
       newWorker.addEventListener('statechange', onChangeState)
     })
   })
-}
-
-function useUpdateStatusWeb() {
-  const [status, setStatus] = useState(swUpdateStatus)
-  useEffect(() => swEventTarget.listen(setStatus), [])
-  return status
-}
-
-function useUpdateStatusNative() {
-  const [status, setStatus] = useState<UpdateStatus>('loading')
-
-  useEffect(() => {
-    let ended = false
-    const subscription = Updates.addListener((event) => {
-      if (event.type === 'noUpdateAvailable') {
-        setStatus('updated')
-      } else if (event.type === 'updateAvailable') {
-        setStatus('downloading')
-        Updates.fetchUpdateAsync()
-          .then(() => {
-            if (ended) return
-            setStatus('downloaded')
-          })
-          .catch((e) => {
-            console.warn(e)
-          })
-      }
-    })
-    const disposeDepChange = onDeploymentChange(() => {
-      Updates.checkForUpdateAsync().then(({ isAvailable }) => {
-        if (isAvailable) {
-          setStatus('downloading')
-          return Updates.fetchUpdateAsync()
-            .then(() => {
-              if (ended) return
-              setStatus('downloaded')
-            })
-            .catch((e) => {
-              console.warn(e)
-            })
-        }
-      })
-    })
-    return () => {
-      ended = true
-      subscription.remove()
-      disposeDepChange()
+} else {
+  Updates.addListener((event) => {
+    if (event.type === 'noUpdateAvailable') {
+      swChangeStatus('updated')
+    } else if (event.type === 'updateAvailable') {
+      swChangeStatus('downloading')
+      Updates.fetchUpdateAsync()
+        .then(() => {
+          swChangeStatus('downloaded')
+        })
+        .catch((e) => {
+          swChangeStatus('failed')
+          console.warn(e)
+        })
     }
-  }, [])
+  })
+}
+onDeploymentChange(checkUpdate)
+
+export function useUpdateStatus() {
+  const [status, setStatus] = useState(updateStatus)
+  useEffect(() => eventTarget.listen(setStatus), [])
   return status
 }
-
-export const useUpdateStatus: () => UpdateStatus =
-  Platform.OS === 'web' ? useUpdateStatusWeb : useUpdateStatusNative
 
 export function reloadToUpdate() {
   if (Platform.OS === 'web') {
     window.location.reload()
   } else {
     Updates.reloadAsync()
+  }
+}
+
+let updateInFlight = false
+export function checkUpdate() {
+  if (updateInFlight) return
+  updateInFlight = true
+  if (Platform.OS === 'web') {
+    swReg
+      ?.update()
+      .catch((e) => console.warn(e))
+      .then(() => {
+        updateInFlight = false
+      })
+  } else {
+    Updates.checkForUpdateAsync()
+      .then(({ isAvailable }) => {
+        if (isAvailable) {
+          swChangeStatus('downloading')
+          return Updates.fetchUpdateAsync().then(() => {
+            swChangeStatus('downloaded')
+          })
+        }
+      })
+      .catch((e) => {
+        swChangeStatus('failed')
+        console.warn(e)
+      })
+      .then(() => {
+        updateInFlight = false
+      })
   }
 }
