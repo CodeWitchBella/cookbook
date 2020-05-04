@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { FloatingGhost } from 'floating-ghost'
 import { LinkButton } from './button'
 import { getDeviceInfo } from 'user'
 
 export function Homepage() {
-  console.log(getDeviceInfo())
+  useEffect(() => {
+    console.log(getDeviceInfo())
+  }, [])
   return (
     <View style={styles.container}>
       <FloatingGhost />
