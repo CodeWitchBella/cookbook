@@ -125,20 +125,21 @@ function Base({
   mood,
 }: React.PropsWithChildren<{ mood: KawaiiMood }>) {
   return (
-    <View
-      style={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-      }}
-    >
-      <View style={{ paddingHorizontal: 10 }}>
-        <Text style={{ fontSize: 20, fontWeight: '500' }}>Přihlášení</Text>
-        {children}
+    <View style={{ minHeight: '100%', justifyContent: 'center' }}>
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'row-reverse',
+          flexWrap: 'wrap',
+        }}
+      >
+        <KawaiiChocolate style={{ padding: 10 }} mood={mood} />
+        <View style={{ padding: 10 }}>
+          <Text style={{ fontSize: 20, fontWeight: '500' }}>Přihlášení</Text>
+          {children}
+        </View>
       </View>
-      <KawaiiChocolate style={{ paddingHorizontal: 10 }} mood={mood} />
     </View>
   )
 }
