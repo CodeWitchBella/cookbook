@@ -15,12 +15,14 @@ let updateStatus: UpdateStatus = 'loading'
 const eventTarget = new MiniEventTarget<UpdateStatus>()
 let swReg: ServiceWorkerRegistration | null = null
 function swChangeStatus(status: UpdateStatus) {
+  console.log('swChangeStatus(' + status + ')')
   updateStatus = status
   eventTarget.emit(status)
 }
 
 if (Platform.OS === 'web' && navigator.serviceWorker) {
   navigator.serviceWorker.ready.then((reg) => {
+    console.log(reg)
     swReg = reg
     if (reg.installing) swChangeStatus('downloading')
     else if (reg.waiting) swChangeStatus('downloaded')
@@ -31,6 +33,7 @@ if (Platform.OS === 'web' && navigator.serviceWorker) {
 
     const onChangeState = () => {
       if (!newWorker) return
+      console.log('onChangeState(' + newWorker.state + ')')
       // "installing" - the install event has fired, but not yet complete
       // "installed"  - install complete
       // "activating" - the activate event has fired, but not yet complete
@@ -51,6 +54,7 @@ if (Platform.OS === 'web' && navigator.serviceWorker) {
     reg.addEventListener('updatefound', () => {
       // A wild service worker has appeared in reg.installing!
       const w = reg.installing
+      console.log('onupdatefound', w)
       if (!w) return
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       if (newWorker) newWorker.removeEventListener('statechange', onChangeState)
