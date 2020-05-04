@@ -112,8 +112,8 @@ export const useUpdateStatus: () => UpdateStatus =
 
 export function reloadToUpdate() {
   if (Platform.OS === 'web') {
-    Updates.reloadAsync()
-  } else {
     window.location.reload()
+  } else {
+    Updates.reloadAsync()
   }
 }
