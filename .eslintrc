@@ -4,5 +4,8 @@
     "plugin:prettier/recommended",
     "prettier/flowtype",
     "prettier/react"
-  ]
+  ],
+  "rules": {
+    "jsx-a11y/accessible-emoji": 0
+  }
 }
