@@ -8,13 +8,13 @@ export function promiseRequest(
   handler: (req: NowRequest, res: NowResponse) => Promise<any>,
 ) {
   return (req: NowRequest, res: NowResponse) => {
-    const deployment = getFirst(req.headers['x-now-deployment-url'])
-    if (deployment) {
-      res.setHeader('x-deployment', deployment)
-      res.setHeader('access-control-expose-headers', 'x-deployment')
-    }
     handler(req, res)
       .then((json) => {
+        const deployment = getFirst(req.headers['x-now-deployment-url'])
+        if (deployment) {
+          res.setHeader('x-deployment', deployment)
+          res.setHeader('access-control-expose-headers', 'x-deployment')
+        }
         respond(json, res)
       })
       .catch((e) => {
@@ -35,7 +35,7 @@ function respond(value: any, res: NowResponse) {
 }
 
 function createSpecialError(body: string, status?: number) {
-  return { [specialError]: body, status: 405 }
+  return { [specialError]: body, status }
 }
 
 function correctOrigin(origin: string, deploymentUrl?: string) {
