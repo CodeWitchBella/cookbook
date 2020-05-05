@@ -3,9 +3,7 @@ import { asyncStorageKeys } from 'async-storage'
 import { MiniEventTarget } from 'mini-event-target'
 
 const localhost = window.location.host.split(':')[0] === 'localhost'
-export const apiHost = localhost
-  ? 'https://localhost:8000'
-  : 'https://kucharka.skorepova.info'
+export const apiHost = localhost ? 'https://localhost:8000' : ''
 const apiError = Symbol()
 
 export function apiFetch<T extends {}>(
