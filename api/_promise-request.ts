@@ -38,18 +38,21 @@ function createSpecialError(body: string, status?: number) {
   return { [specialError]: body, status: 405 }
 }
 
+function correctOrigin(origin: string, deploymentUrl?: string) {
+  if (origin === 'https://kucharka.skorepova.info') return true
+  if (deploymentUrl && origin === 'https://' + deploymentUrl) return true
+  if (/^https:\/\/cookbook(-[a-z-]+)?\.codewitchbella\.now\.sh$/.exec(origin))
+    return true
+  return false
+}
+
 export function checkCSRF(req: NowRequest, method = 'POST') {
   if (req.method !== method) {
     throw createSpecialError('Method not allowed', 405)
   }
-  const url = req.headers['x-now-deployment-url']
+  const url = getFirst(req.headers['x-now-deployment-url'])
   const origin = getFirst(req.headers.origin) || ''
-  if (
-    method !== 'GET' &&
-    ![url, 'kucharka.skorepova.info']
-      .map((host) => 'https://' + host)
-      .includes(origin)
-  ) {
+  if (method !== 'GET' && !correctOrigin(origin, url)) {
     throw createSpecialError('Forbidden, wrong origin. Got: ' + origin, 403)
   }
   if (
