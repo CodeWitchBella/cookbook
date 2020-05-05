@@ -6,7 +6,7 @@ import { Button } from './button'
 export function BackButton({ style }: { style?: ViewStyle }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const canGoBack = (location.state as any).canGoBack
+  const canGoBack = (location.state as any)?.canGoBack
   if (!canGoBack && location.pathname === '/') return null
   return (
     <View style={[style, { height: 0, alignItems: 'flex-start' }]}>
