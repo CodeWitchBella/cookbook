@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { FloatingGhost } from 'floating-ghost'
-// @ts-ignore
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from 'login'
 import { BackButton } from 'back-button'
